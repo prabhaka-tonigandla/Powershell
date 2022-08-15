@@ -5,12 +5,15 @@ $DestDocs = Get-ChildItem –Path C:\Prabhakar\Compare\dest | foreach  {Get-File
 
 Compare-Object -ReferenceObject $SourceDocs.Hash  -DifferenceObject $DestDocs.Hash
 
-$data=(Compare-Object -ReferenceObject $SourceDocs -DifferenceObject $DestDocs  -Property hash -PassThru).Path
+$data=(Compare-Object -ReferenceObject $SourceDocs -DifferenceObject $DestDocs  -Property hash -PassThru)
+$lastover=(Compare-Object -ReferenceObject $SourceDocs -DifferenceObject $DestDocs  -Property hash -PassThru).lastWriteTime
 $ReportTitle = "Event Log Report"
 $footer = "<h5><i>report run $(Get-Date)</i></h5>"
 $css = ".\sample.css"
 $precontent = "<H1>$env.</H1><H2> file differencesg</H2>"
+$lastover
 
-(Compare-Object -ReferenceObject $SourceDocs -DifferenceObject $DestDocs  -Property hash -PassThru) | Select Path  | 
+$data | Select Path,LastWriteTime  | s
     ConvertTo-Html -Title $ReportTitle -PreContent $precontent  -PostContent $footer -CssUri $css |
-    Out-File C:\Users\Aaradhya\Documents\GitHub\Powershell\script\test.html
+    Out-File C:\Users\Aaradhya\Documents\GitHub\Powershell\script\fileTest.html
+

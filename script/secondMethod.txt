@@ -1,0 +1,37 @@
+$sourcePath = "C:\Prabhakar\Compare\source"
+$destPath = "C:\Prabhakar\Compare\dest"
+$SourceDocs = Get-ChildItem –Path $sourcePath | foreach  {Get-FileHash –Path $_.FullName}
+$DestDocs = Get-ChildItem –Path $destPath | foreach  {Get-FileHash –Path $_.FullName}
+
+
+$result = (Compare-Object -ReferenceObject $SourceDocs -DifferenceObject $DestDocs  -Property hash -PassThru)   | Select-string -pattern ([regex]::Escape("$sourcePath"))
+
+Foreach ($i in $result.Path)
+{
+ 
+ Write-Host $i
+}
+
+
+$folder1 = "C:\Prabhakar\Compare\source"
+$folder2 = "C:\Prabhakar\Compare\dest"
+
+# Get all files under $folder1, filter out directories
+$firstFolder = Get-ChildItem -Recurse $folder1 | Where-Object { -not $_.PsIsContainer }
+
+$firstFolder | ForEach-Object {
+
+    # Check if the file, from $folder1, exists with the same path under $folder2
+    If ( Test-Path ( $_.FullName.Replace($folder1, $folder2) ) ) {
+
+        # Compare the contents of the two files...
+        If ( Compare-Object (Get-Content $_.FullName) (Get-Content $_.FullName.Replace($folder1, $folder2) ) ) {
+
+            # List the paths of the files containing diffs
+            $_.FullName
+            $_.FullName.Replace($folder1, $folder2)
+
+        }
+    }   
+}
+
