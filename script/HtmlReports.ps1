@@ -1,0 +1,33 @@
+﻿$sourcePath = "C:\Prabhakar\Compare\source\"
+$destPath = "C:\Prabhakar\Compare\dest\"
+$Location = "C:\Prabhakar\AppendHtml.html"
+$SourceDocs = Get-ChildItem –Path $sourcePath -Recurse | foreach { Get-FileHash –Path $_.FullName }
+$DestDocs = Get-ChildItem –Path $destPath -Recurse  | foreach { Get-FileHash –Path $_.FullName }
+
+
+$result = (Compare-Object -ReferenceObject $SourceDocs -DifferenceObject $DestDocs  -Property hash -PassThru )  
+(Compare-Object -ReferenceObject $SourceDocs -DifferenceObject $DestDocs  -Property hash -PassThru )   |  ConvertTo-Html -Property Path  | Out-File $Location 
+$outputFile = New-Object System.Collections.Generic.List[System.Object]
+Foreach ($i in $result.Path) {
+ 
+    $filename = Split-Path $i -leaf
+    if ($outputFile -notcontains $filename) {
+        $outputFile.Add($filename)
+    }
+
+}
+foreach ($letter in $outputFile) {
+
+
+    $sourceFileName = Join-Path -Path $sourcePath -ChildPath $letter
+    $destFileName = Join-Path -Path $destPath -ChildPath $letter
+
+    Write-Host "source: $sourceFileName and desntination: $destFileName "
+
+    if (Test-Path -Path $sourceFileName) {
+
+        Compare-Object -ReferenceObject $(Get-Content $sourceFileName) -DifferenceObject $(Get-Content $destFileName) |  ConvertTo-Html  | Out-File $Location -Append
+
+    }
+
+}
