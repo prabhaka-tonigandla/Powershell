@@ -9,6 +9,8 @@ $css = "./styles.css"
 $result = (Compare-Object -ReferenceObject $SourceDocs -DifferenceObject $DestDocs  -Property hash -PassThru )  
 $PathsText = (Compare-Object -ReferenceObject $SourceDocs -DifferenceObject $DestDocs  -Property hash -PassThru )   |  ConvertTo-Html -Property Path -Fragment
 $outputFile = New-Object System.Collections.Generic.List[System.Object]
+
+
 Foreach ($i in $result.Path) {
  
     $filename = Split-Path $i -leaf
