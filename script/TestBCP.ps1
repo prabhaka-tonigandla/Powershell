@@ -3,10 +3,14 @@ $folder1 = "C:\Prabhakar\Compare\source\"
 $folder2 = "C:\Prabhakar\Compare\dest\"
 $css = "./styles.css"
 $Location = "C:\Users\Aaradhya\Documents\GitHub\Powershell\script\BCPFinal.html"
-$FilesOnlyInSource =New-Object System.Collections.Generic.List[System.Object]
-$FilesOnlyInDestination =New-Object System.Collections.Generic.List[System.Object]
-$MismatchFiles = New-Object System.Collections.Generic.List[System.Object]
-
+$FilesOnlyInSource =@()
+$FilesOnlyInDestination =@()
+$MismatchFiles = @()
+$myObject = [PSCustomObject]@{
+    Path     = 'Kevin'
+    Language = 'PowerShell'
+    State    = 'Texas'
+}
 # Get all files under $folder1, filter out directories
 $firstFolder = Get-ChildItem -Recurse $folder1 | Where-Object { -not $_.PsIsContainer }
 
@@ -25,7 +29,8 @@ $firstFolder | ForEach-Object {
             $filename =  Split-Path $_.FullName -leaf
             $failedCount = $failedCount + 1
            # Write-Host "$filename is on each server, but does not match"
-            $MismatchFiles.Add($_.FullName)
+            $MismatchFiles += New-Object -TypeName psobject -Property @{Path=$_.FullName; DeployedDate=$_.LastWriteTime}
+
             
         }
     }
@@ -34,7 +39,7 @@ $firstFolder | ForEach-Object {
         $filename =  Split-Path $_.FullName -leaf
         $failedCount = $failedCount + 1
         #Write-Host "$filename is only in folder 1"
-        $FilesOnlyInSource.Add($_.FullName)
+        $FilesOnlyInSource += New-Object -TypeName psobject -Property @{Path=$_.FullName; DeployedDate=$_.LastWriteTime}
     }
 }
 
@@ -52,7 +57,7 @@ $secondFolder | ForEach-Object {
         $filename =  Split-Path $_.FullName -leaf
         $failedCount = $failedCount + 1
         #Write-Host "$filename is only in folder 2"
-        $FilesOnlyInDestination.Add($_.FullName)
+         $FilesOnlyInDestination += New-Object -TypeName psobject -Property @{Path=$_.FullName; DeployedDate=$_.LastWriteTime}
     }
 }
 
@@ -60,17 +65,12 @@ $FilesOnlyInSource
 $FilesOnlyInDestination 
 $MismatchFiles 
 
-#$FilesOnlyInSourceHtml = $FilesOnlyInSource  |  Get-ChildItem -Path $_. |
-     #   Select-Object -Property BaseName,Extension,Length,LastWriteTime ConvertTo-HTML -Fragment -PreContent "<h1>Files only exists in Source</h1>"
-#$FilesOnlyInDestinationHtml = $FilesOnlyInDestination  | ConvertTo-HTML -Fragment -PreContent "<h1>Files only exists in Destination</h1>"
-#$MismatchFilesHtml = $MismatchFiles  | ConvertTo-HTML -Fragment -PreContent "<h1>Mismatched files list</h1>"
+$FilesOnlyInSourceHtml = $FilesOnlyInSource  | ConvertTo-HTML -Fragment -PreContent "<h1>Files only exists in Source</h1>"
+$FilesOnlyInDestinationHtml = $FilesOnlyInDestination  | ConvertTo-HTML -Fragment -PreContent "<h1>Files only exists in Destination</h1>"
+$MismatchFilesHtml = $MismatchFiles  | ConvertTo-HTML -Fragment -PreContent "<h1>Mismatched files list</h1>"
 
 
-$bodyText = @()
-foreach ($row in $FilesOnlyInSource) {
-$bodyText += $row
 
-}
-$bodyTexthtml = $bodyText  | ConvertTo-HTML -Fragment -PreContent "<h1>Files only exists in Destination</h1>"
-$test=$bodyText.ToString()
-ConvertTo-Html -Body "$bodyText"  -Title "Test report"  -CssUri $css | Out-File $Location
+ConvertTo-Html -Body " $FilesOnlyInSourceHtml $FilesOnlyInDestinationHtml $MismatchFilesHtml"  -Title "Test report"  -CssUri $css | Out-File $Location
+
+
