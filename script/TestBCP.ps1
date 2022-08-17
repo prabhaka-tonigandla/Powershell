@@ -29,7 +29,7 @@ $firstFolder | ForEach-Object {
             $filename =  Split-Path $_.FullName -leaf
             $failedCount = $failedCount + 1
            # Write-Host "$filename is on each server, but does not match"
-            $MismatchFiles += New-Object -TypeName psobject -Property @{Path=$_.FullName; DeployedDate=$_.LastWriteTime}
+            $MismatchFiles += New-Object -TypeName psobject -Property @{Path=$_.FullName; DeployedDate=$_.LastWriteTime;SizeinKB=$_.Length}
 
             
         }
@@ -39,7 +39,7 @@ $firstFolder | ForEach-Object {
         $filename =  Split-Path $_.FullName -leaf
         $failedCount = $failedCount + 1
         #Write-Host "$filename is only in folder 1"
-        $FilesOnlyInSource += New-Object -TypeName psobject -Property @{Path=$_.FullName; DeployedDate=$_.LastWriteTime}
+        $FilesOnlyInSource += New-Object -TypeName psobject -Property @{Path=$_.FullName; DeployedDate=$_.LastWriteTime;SizeinKB=$_.Length}
     }
 }
 
@@ -57,7 +57,7 @@ $secondFolder | ForEach-Object {
         $filename =  Split-Path $_.FullName -leaf
         $failedCount = $failedCount + 1
         #Write-Host "$filename is only in folder 2"
-         $FilesOnlyInDestination += New-Object -TypeName psobject -Property @{Path=$_.FullName; DeployedDate=$_.LastWriteTime}
+         $FilesOnlyInDestination += New-Object -TypeName psobject -Property @{Path=$_.FullName; DeployedDate=$_.LastWriteTime;SizeinKB=$_.Length}
     }
 }
 
